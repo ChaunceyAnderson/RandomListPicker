@@ -1,17 +1,15 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
+interface RandomListPickerSettings {
 	mySetting: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: RandomListPickerSettings = {
 	mySetting: 'default'
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class RandomListPicker extends Plugin {
+	settings: RandomListPickerSettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -19,7 +17,7 @@ export default class MyPlugin extends Plugin {
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+			new Notice('Yabba Dabba notice value');
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
@@ -30,10 +28,20 @@ export default class MyPlugin extends Plugin {
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
+			id: 'get-random-item-modal',
+			name: 'Get Random Item-Modal',
+			//callback: () => {
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+				//new SampleModal(this.app).open();
+				
+				let listContent: string = editor.getValue();
+				let listArray: string[] = listContent.split('\n');
+				let randomElement: string = listArray[Math.floor(Math.random() * listArray.length)];
+			
+				let sampleModal = new SampleModal(this.app);
+				sampleModal.setContentValue(randomElement);
+				sampleModal.open();
+
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -42,7 +50,7 @@ export default class MyPlugin extends Plugin {
 			name: 'Sample editor command',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
+				editor.replaceSelection('Lets Enter Some Yabba Dabba, shall we?');
 			}
 		});
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
@@ -62,6 +70,20 @@ export default class MyPlugin extends Plugin {
 					// This command will only show up in Command Palette when the check function returns true
 					return true;
 				}
+			}
+		});
+
+		this.addCommand({
+			id: 'get-random-item-popup',
+			name: 'Get Random Item-Popup',
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+				console.log(editor.getSelection());
+				
+				let listContent: string = editor.getValue();
+				//let listContent: string = editor.getSelection();
+				let listArray: string[] = listContent.split('\n');
+				let randomElement: string = listArray[Math.floor(Math.random() * listArray.length)];
+				new Notice(randomElement);
 			}
 		});
 
@@ -91,26 +113,50 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
+// class SampleModal extends Modal {
+// 	constructor(app: App) {
+// 		super(app);
+// 	}
+
+// 	onOpen() {
+// 		const {contentEl} = this;
+// 		contentEl.setText('Woah, Yabba Dabba Doo !');
+// 	}
+
+// 	onClose() {
+// 		const {contentEl} = this;
+// 		contentEl.empty();
+// 	}
+// }
+
 class SampleModal extends Modal {
 	constructor(app: App) {
 		super(app);
+		this.ContentValue = "";
 	}
+
+	ContentValue: string;
 
 	onOpen() {
 		const {contentEl} = this;
-		contentEl.setText('Woah!');
+		//contentEl.setText('Woah, Yabba Dabba Doo !');
+		contentEl.setText(this.ContentValue);
 	}
 
 	onClose() {
 		const {contentEl} = this;
 		contentEl.empty();
 	}
+
+	setContentValue(value: string) {
+        this.ContentValue = value;
+    }
 }
 
 class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+	plugin: RandomListPicker;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: RandomListPicker) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}

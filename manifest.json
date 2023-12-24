@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "random-list-picker",
+	"name": "Random List Picker",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Yabba Dabba Doo",
+	"author": "Chauncey Anderson",
+	"authorUrl": "",
+	"fundingUrl": "",
 	"isDesktopOnly": false
 }
