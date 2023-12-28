@@ -14,6 +14,26 @@ export default class RandomListPicker extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
+		//THIS IS TEMPORARY
+		this.addCommand({
+			id: 'remove-blank-lines',
+			name: 'Remove Blank Lines',
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+				
+				let listContent: string = editor.getValue();
+
+				// Split the string into an array of lines
+				// then remove any lines that are blank or contain only whitespace
+				let filteredContent = listContent.split('\n').filter(line => line.trim() !== '').join('\n');
+				editor.setValue(filteredContent);
+			
+				let sampleModal = new SampleModal(this.app);
+				sampleModal.setContentValue('Processing complete !');
+				sampleModal.open();
+
+			}
+		});
+
 		this.addCommand({
 			id: 'get-random-item',
 			name: 'Get Random Item',
