@@ -14,25 +14,10 @@ export default class RandomListPicker extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('Yabba Dabba notice value');
-		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
-
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
-
-		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: 'get-random-item-modal',
-			name: 'Get Random Item-Modal',
-			//callback: () => {
+			id: 'get-random-item',
+			name: 'Get Random Item',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				//new SampleModal(this.app).open();
 				
 				let listContent: string = editor.getValue();
 				let listArray: string[] = listContent.split('\n');
@@ -47,16 +32,30 @@ export default class RandomListPicker extends Plugin {
 
 		this.addCommand({
 			id: 'get-random-item-transfer',
-			name: 'Get Random Item-Transfer',
+			name: 'Get Random Item And Transfer',
 
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 
+				let randomIndex: number;
 				let listContent: string = editor.getValue();
 				let listArray = listContent.split('\n');
-				let excludedIndex = listArray.findIndex(element => element.includes('%%IGNORE%%'));
-				let randomIndex = Math.floor(Math.random() * excludedIndex);
+
+				let ignoreIndex = listArray.findIndex(element => element.includes('%%IGNORE%%'));
+				if (ignoreIndex < 0) {
+					// If the '%%IGNORE%%' line not found then use the array length for getting random item
+					// TODO: validate listArray.length is not <= 0
+					randomIndex = Math.floor(Math.random() * listArray.length);
+				} else {
+					// use the ignore index
+					randomIndex = Math.floor(Math.random() * ignoreIndex);
+				}
+				// TODO: validate randomIndex is not < 0
 				let randomElement = listArray[randomIndex];
 				listArray.splice(randomIndex, 1);
+				if (ignoreIndex < 0) {
+					// If the '%%IGNORE%%' line was not found then add it
+					listArray.push('%%IGNORE%%');
+				}
 				listArray.push(randomElement);
 				let updatedListContent = listArray.join('\n');
 				editor.setValue(updatedListContent);
@@ -68,48 +67,25 @@ export default class RandomListPicker extends Plugin {
 			}
 		});
 
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Lets Enter Some Yabba Dabba, shall we?');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
+		// // This adds a complex command that can check whether the current state of the app allows execution of the command
+		// this.addCommand({
+		// 	id: 'open-sample-modal-complex',
+		// 	name: 'Open sample modal (complex)',
+		// 	checkCallback: (checking: boolean) => {
+		// 		// Conditions to check
+		// 		const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+		// 		if (markdownView) {
+		// 			// If checking is true, we're simply "checking" if the command can be run.
+		// 			// If checking is false, then we want to actually perform the operation.
+		// 			if (!checking) {
+		// 				new SampleModal(this.app).open();
+		// 			}
 
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-			}
-		});
-
-		this.addCommand({
-			id: 'get-random-item-popup',
-			name: 'Get Random Item-Popup',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				
-				let listContent: string = editor.getValue();
-				//let listContent: string = editor.getSelection();
-				let listArray: string[] = listContent.split('\n');
-				let randomElement: string = listArray[Math.floor(Math.random() * listArray.length)];
-				new Notice(randomElement);
-			}
-		});
+		// 			// This command will only show up in Command Palette when the check function returns true
+		// 			return true;
+		// 		}
+		// 	}
+		// });
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new SampleSettingTab(this.app, this));
@@ -137,22 +113,6 @@ export default class RandomListPicker extends Plugin {
 	}
 }
 
-// class SampleModal extends Modal {
-// 	constructor(app: App) {
-// 		super(app);
-// 	}
-
-// 	onOpen() {
-// 		const {contentEl} = this;
-// 		contentEl.setText('Woah, Yabba Dabba Doo !');
-// 	}
-
-// 	onClose() {
-// 		const {contentEl} = this;
-// 		contentEl.empty();
-// 	}
-// }
-
 class SampleModal extends Modal {
 	constructor(app: App) {
 		super(app);
@@ -163,7 +123,6 @@ class SampleModal extends Modal {
 
 	onOpen() {
 		const {contentEl} = this;
-		//contentEl.setText('Woah, Yabba Dabba Doo !');
 		contentEl.setText(this.ContentValue);
 	}
 
