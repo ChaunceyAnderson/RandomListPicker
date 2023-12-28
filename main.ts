@@ -44,6 +44,30 @@ export default class RandomListPicker extends Plugin {
 
 			}
 		});
+
+		this.addCommand({
+			id: 'get-random-item-transfer',
+			name: 'Get Random Item-Transfer',
+
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+
+				let listContent: string = editor.getValue();
+				let listArray = listContent.split('\n');
+				let excludedIndex = listArray.findIndex(element => element.includes('%%IGNORE%%'));
+				let randomIndex = Math.floor(Math.random() * excludedIndex);
+				let randomElement = listArray[randomIndex];
+				listArray.splice(randomIndex, 1);
+				listArray.push(randomElement);
+				let updatedListContent = listArray.join('\n');
+				editor.setValue(updatedListContent);
+			
+				let sampleModal = new SampleModal(this.app);
+				sampleModal.setContentValue(randomElement);
+				sampleModal.open();
+
+			}
+		});
+
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
 			id: 'sample-editor-command',
